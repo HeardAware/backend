@@ -1,6 +1,7 @@
-package heardaware.backend;
+package herdaware;
 
 import blazing.Blazing;
+import heardaware.backend.BackendService;
 
 /**
  *
