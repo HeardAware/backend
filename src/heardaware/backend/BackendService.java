@@ -4,7 +4,6 @@ import blazing.BlazingLog;
 import blazing.BlazingResponse;
 import blazing.Initializer;
 import blazing.Post;
-import blazing.Static;
 import blazing.WebServer;
 import java.sql.*;
 import blazing.crypto.HashUtils;
@@ -33,8 +32,6 @@ public class BackendService {
 	@Post("/v1/users/signup")
 	public static void signup(BlazingResponse response) {
 		var params = response.params();
-
-		String username = params.get("username");
 		String company_name = params.get("company_name");
 		String email = params.get("email");
 		String password = params.get("password");
@@ -43,16 +40,15 @@ public class BackendService {
 		String sql
 			= """
  INSERT 
- 	INTO Users (username, company_name, email, password) 
- 	VALUES (?, ?, ?, ?)
+ 	INTO Users (company_name, email, password) 
+ 	VALUES (?, ?, ?)
   """;
 
 		HashMap<String, Object> map = new HashMap<>();
 		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-			stmt.setString(1, username);
-			stmt.setString(2, company_name);
-			stmt.setString(3, email);
-			stmt.setString(4, password_hash);
+			stmt.setString(1, company_name);
+			stmt.setString(2, email);
+			stmt.setString(3, password_hash);
 			int rows = stmt.executeUpdate();
 			if (rows != 1) {
 				map.put("status", 500);
@@ -67,6 +63,77 @@ public class BackendService {
 		} finally {
 			var json = JSon.from(map).unwrap();
 			response.sendResponse(json);
+		}
+	}
+
+	@Post("/v1/users/login")
+	public static void emailLogin(BlazingResponse response) {
+		var params = response.params();
+		String email = params.get("email");
+		String password = params.get("password");
+
+		String sql
+			= """
+  	SELECT * FROM users WHERE email = ? and password = ?
+    """;
+
+		HashMap<String, Object> map = new HashMap<>();
+		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+			stmt.setString(1, email);
+			stmt.setString(2, password);
+			ResultSet rs = stmt.executeQuery();
+			int count = 0;
+			while (rs.next()) {
+				count++;
+			}
+
+			if (count == 0) {
+				map.put("status", 404);
+				map.put("message", "User does not exits");
+			} else {
+				map.put("status", 200);
+				map.put("message", "Login successful");
+			}
+		} catch (SQLException ex) {
+			map.put("status", 500);
+			map.put("message", "Fatal: " + ex.getMessage());
+		} finally {
+			var json = JSon.from(map);
+			response.sendResponse(sql);
+		}
+	}
+
+	@Post("/v1/users/email/exits")
+	public static void emailExists(BlazingResponse response) {
+		var params = response.params();
+		String email = params.get("email");
+		String sql
+			= """
+  	SELECT * FROM users WHERE email = ? 
+    """;
+
+		HashMap<String, Object> map = new HashMap<>();
+		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+			stmt.setString(1, email);
+			ResultSet rs = stmt.executeQuery();
+			int count = 0;
+			while (rs.next()) {
+				count++;
+			}
+
+			if (count == 0) {
+				map.put("status", 200);
+				map.put("message", "User does not exits");
+			} else {
+				map.put("status", 400);
+				map.put("message", "Email already exist");
+			}
+		} catch (SQLException ex) {
+			map.put("status", 500);
+			map.put("message", "Fatal: " + ex.getMessage());
+		} finally {
+			var json = JSon.from(map);
+			response.sendResponse(sql);
 		}
 	}
 
