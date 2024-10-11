@@ -2,6 +2,7 @@ package heardaware.backend;
 
 import blazing.BlazingLog;
 import blazing.BlazingResponse;
+import blazing.Get;
 import blazing.Initializer;
 import blazing.Post;
 import blazing.WebServer;
@@ -9,6 +10,8 @@ import java.sql.*;
 import blazing.crypto.HashUtils;
 import blazing.json.JSon;
 import java.util.HashMap;
+import webx.H1;
+import webx.Html;
 
 /**
  *
@@ -27,6 +30,15 @@ public class BackendService {
 		} catch (SQLException ex) {
 			BlazingLog.panic(ex.getMessage());
 		}
+	}
+
+	@Get
+	public static void home(BlazingResponse response) {
+		var page = new Html().
+			addChildren(
+				new H1("We are Live :) HerdAware to the Moon!!!")
+			);
+		response.sendUiRespose(page);
 	}
 
 	@Post("/v1/users/signup")
