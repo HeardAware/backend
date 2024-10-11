@@ -21,7 +21,7 @@ public class BackendService {
 
 	@Initializer
 	public static void init() {
-		String url = "jdbc:sqlite:db/packages.db";
+		String url = "jdbc:sqlite:db/users.db";
 		try {
 			conn = DriverManager.getConnection(url);
 		} catch (SQLException ex) {
