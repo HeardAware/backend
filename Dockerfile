@@ -16,5 +16,5 @@ WORKDIR /backend
 EXPOSE 8080
 
 # Run the Java application
-CMD ["java", "-jar", "herdawareserver-dist", "."]
+CMD ["java", "-jar", "herdawareserver-dist.jar", "."]
 
