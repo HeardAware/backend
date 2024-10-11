@@ -7,15 +7,14 @@ RUN pacman -Syu --noconfirm \
 # Clone the repository and set the working directory
 RUN cd / && \
     git clone https://github.com/HeardAware/backend.git && \
-    cd HeardAware
+    cd backend
 
 # Set the working directory
-WORKDIR /HeardAware
+WORKDIR /backend
 
 # Expose port 8080
 EXPOSE 8080
 
 # Run the Java application
 CMD ["java", "-jar", "herdawareserver-dist", "."]
-
 
