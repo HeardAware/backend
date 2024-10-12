@@ -10,8 +10,11 @@ import java.sql.*;
 import blazing.crypto.HashUtils;
 import blazing.json.JSon;
 import java.util.HashMap;
+import webx.Button;
+import webx.Div;
 import webx.H1;
 import webx.Html;
+import webx.Input;
 
 /**
  *
@@ -34,9 +37,34 @@ public class BackendService {
 
 	@Get
 	public static void home(BlazingResponse response) {
+		String request = 
+"""
+js:{"email": email.value}
+""".strip().trim();
+
 		var page = new Html().
 			addChildren(
-				new H1("We are Live :) HerdAware to the Moon!!!")
+				new Div()
+					.id("target")
+					.addChildren(
+						new Input()
+							.id("company")
+							.attr("required", "true")
+							.attr("placeholder", "company name"), 
+						new Input()
+							.id("email")
+							.attr("type", "email")
+							.attr("required", "true")
+							.attr("placeholder", "email"), 
+						new Input()
+							.id("password")
+							.attr("required", "true")
+							.attr("placeholder", "*******"), 
+						new Button("Sign Up")
+							.hxVals(request)
+							.hxTarget("#target")
+							.hxPost("/v1/users/email/exits")
+					)
 			);
 		response.sendUiRespose(page);
 	}
@@ -62,6 +90,8 @@ public class BackendService {
 			stmt.setString(2, email);
 			stmt.setString(3, password_hash);
 			int rows = stmt.executeUpdate();
+
+			BlazingLog.info("Rows: " + rows);
 			if (rows != 1) {
 				map.put("status", 500);
 				map.put("message", "Failed to insert user");
@@ -110,8 +140,8 @@ public class BackendService {
 			map.put("status", 500);
 			map.put("message", "Fatal: " + ex.getMessage());
 		} finally {
-			var json = JSon.from(map);
-			response.sendResponse(sql);
+			var json = JSon.from(map).unwrap();
+			response.sendResponse(json);
 		}
 	}
 
@@ -144,8 +174,8 @@ public class BackendService {
 			map.put("status", 500);
 			map.put("message", "Fatal: " + ex.getMessage());
 		} finally {
-			var json = JSon.from(map);
-			response.sendResponse(sql);
+			var json = JSon.from(map).unwrap();
+			response.sendResponse(json);
 		}
 	}
 
